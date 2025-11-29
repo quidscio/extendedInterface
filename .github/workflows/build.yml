@@ -88,12 +88,34 @@ jobs:
           mkdir -p ../extendedInterface-accessories/integrations/ubcp
           #curl -L -o ../extendedInterface-accessories/integrations/ubcp/package_ubcp-core.7z  $(curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/mirage335-colossus/ubiquitous_bash/releases" | jq -r ".[] | select(.name == \"internal\") | .assets[] | select(.name == \"package_ubcp-core.7z\") | .browser_download_url" | sort -n -r | head -n1)  
           ./ubiquitous_bash.sh _build_extendedInterface-fetch
+      - name: 🔍 Capture File Tree (BEFORE Build)
+        shell: bash
+        run: |
+          # Run the find/sed command in the current directory and save it to a log file
+          # We use 'before_build_tree.log' in the workspace root for easy access later
+          find . -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' > before_build_tree.log
+          echo "Generated file list before build: before_build_tree.log"
       - name: build-build
         shell: bash
         timeout-minutes: 120
         run: |
           rm -f ../extendedInterface-accessories/integrations/ubcp/package_ubcp-core.7z
           ./ubiquitous_bash.sh _build_extendedInterface-build
+      - name: 🔍 Capture File Tree (AFTER Build)
+        shell: bash
+        run: |
+          # Run the same command to capture the final state, including new files created by 'build-build'
+          find . -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' > after_build_tree.log
+          echo "Generated file list after build: after_build_tree.log"
+      - name: 📤 Upload Build Diagnostics Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: Build-Diagnostics-Logs
+          # Specify both files for upload. They are in the root of the workspace.
+          path: |
+            before_build_tree.log
+            after_build_tree.log
+          retention-days: 7 # Optional: keep logs for 7 days
       - name: release!
         uses: softprops/action-gh-release@v1
         with:

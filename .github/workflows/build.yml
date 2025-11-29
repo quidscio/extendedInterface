@@ -93,7 +93,7 @@ jobs:
         run: |
           # Run the find/sed command in the current directory and save it to a log file
           # We use 'before_build_tree.log' in the workspace root for easy access later
-          find . -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' > before_build_tree.log
+          find .. -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' > before_build_tree.log
           echo "Generated file list before build: before_build_tree.log"
       - name: build-build
         shell: bash
@@ -105,7 +105,7 @@ jobs:
         shell: bash
         run: |
           # Run the same command to capture the final state, including new files created by 'build-build'
-          find . -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' > after_build_tree.log
+          find .. -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' > after_build_tree.log
           echo "Generated file list after build: after_build_tree.log"
       - name: 📤 Upload Build Diagnostics Artifacts
         uses: actions/upload-artifact@v4

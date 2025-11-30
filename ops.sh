@@ -2,7 +2,7 @@
 
 # Overrides for ubiquitous_bash.sh to add verbose, dynamic certificate link management.
 _install_certs() {
-    _messageNormal 'install: certs'
+    _messageNormal 'install: certs **RMH**'
     if [[ $(id -u 2> /dev/null) == "0" ]] || [[ "$USER" == "root" ]] || _if_cygwin
     then
         sudo() {

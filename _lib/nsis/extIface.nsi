@@ -361,10 +361,12 @@ Section "Install"
   Rename "C:\core\infrastructure\ubcp-home-backup-prev" "C:\core\infrastructure\ubcp-home-backup-prev-prev-$0"
   DetailPrint "$0"
   Sleep 2500
+  !insertmacro CoreLog ".. Backed up previous backups with unique suffix $0."
 
   ; Setup CMD yet again... Is this needed??? 
   ExpandEnvStrings $5 %COMSPEC%
   ExecWait '"$5" /C "C:\core\infrastructure\ubiquitous_bash\_setupUbiquitous_nonet.bat"'
+  !insertmacro CoreLog ".. Ran ubiquitous_bash _setupUbiquitous_nonet."
 
   ; More initialization for startup folder 
   ; ATTENTION: Startups may be copied again.  
@@ -372,6 +374,7 @@ Section "Install"
   ;CopyFiles "C:\_DropTerm-startup.lnk" "$SMSTARTUP"
   CopyFiles "C:\_DropTerm-startup.bat.lnk" "$SMSTARTUP"
   CopyFiles "C:\docker_wsl_config.bat" "$SMSTARTUP"
+  !insertmacro CoreLog ".. Copied DropTerm, docker_wls startup files to $SMSTARTUP."
 
   ; And again? 
   ExpandEnvStrings $5 %COMSPEC%

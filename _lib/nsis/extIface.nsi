@@ -8,9 +8,9 @@
 ;===== Enable a disk log =====
 !macro CoreLog TEXT
   CreateDirectory "C:\core\logs"
-  System::Call 'kernel32::GetLocalTime(*l .r1)'
-  ; r1 now points to SYSTEMTIME (year, month, etc.). Build a timestamp string.
-  StrCpy $R0 "$1-1 $1-2 $1-4 $1-5 $1-6"
+  ${GetTime} "" "L" $0 $1 $2 $3 $4 $5 $6
+  ; $0=Year, $1=Month, $2=Day, $3=Hour, $4=Min, $5=Sec
+  StrCpy $R0 "$0-$1-$2 $3:$4:$5"
   FileOpen $0 "C:\core\logs\extIface_installer.log" a
   FileWrite $0 "$R0 | ${TEXT}$\r$\n"
   FileClose $0
@@ -48,6 +48,8 @@ Page instfiles
 
 ;===== Install Section ===== 
 Section "Install"
+  !insertmacro CoreLog "== Starting extendedInterface installer "
+
   ; Set all-users scope for installed files and registry entries
   SetShellVarContext all
 
@@ -392,6 +394,7 @@ Section "Install"
 SectionEnd
 
 
+
 function un.onInit
 	SetShellVarContext all
  
@@ -482,3 +485,11 @@ section "uninstall"
 	# Remove uninstaller information from the registry
 	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${COMPANYNAME} ${APPNAME}"
 sectionEnd
+
+
+
+
+
+
+
+

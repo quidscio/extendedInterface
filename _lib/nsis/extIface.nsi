@@ -12,18 +12,22 @@
 !macro CoreLog TEXT
   CreateDirectory "C:\core\logs"
 
-  ; $0=Year $1=Month $2=Day $3=Hour $4=Min $5=Sec $6=DOW
+  ; ${GetTime} "" "L" day month year dow hour min sec
   ${GetTime} "" "L" $0 $1 $2 $3 $4 $5 $6
 
-  ; zero-pad
-  IntFmt $0 "%04i" $0
-  IntFmt $1 "%02i" $1
-  IntFmt $2 "%02i" $2
-  IntFmt $3 "%02i" $3
-  IntFmt $4 "%02i" $4
-  IntFmt $5 "%02i" $5
+  ; zero-pad with correct mapping
+  IntFmt $0 "%02i" $0 ; day
+  IntFmt $1 "%02i" $1 ; month
+  IntFmt $2 "%04i" $2 ; year
+  IntFmt $4 "%02i" $4 ; hour
+  IntFmt $5 "%02i" $5 ; minute
+  IntFmt $6 "%02i" $6 ; second
 
-  StrCpy $R0 "$0-$1-$2 $3:$4:$5"
+  ; pick your preferred format:
+  ; ISO style:
+  StrCpy $R0 "$2-$1-$0 $4:$5:$6"
+  ; or European dd-mm-yyyy:
+  ; StrCpy $R0 "$0-$1-$2 $4:$5:$6"
 
   ClearErrors
   FileOpen $9 "C:\core\logs\extIface_installer.log" a

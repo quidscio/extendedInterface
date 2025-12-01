@@ -5,16 +5,29 @@
 ; ATTRIBUTION - https://nsis.sourceforge.io/Embedding_other_installers
 ; ATTRIBUTION - https://stackoverflow.com/questions/3265141/executing-batch-file-in-nsis-installer
 
-;===== Enable a disk log =====
+;===== Enable a disk log with timestamp =====
+!include "FileFunc.nsh"
+!insertmacro GetTime
+
 !macro CoreLog TEXT
   CreateDirectory "C:\core\logs"
-  System::Call 'kernel32::GetLocalTime(*i .r0)'   ; r0 points to SYSTEMTIME
-  System::Call "*$0(&i2 .r1, &i2 .r2, &i2, &i2, &i2 .r3, &i2 .r4, &i2, &i2)"
-  ; r1=year, r2=month, r3=day, r4=hour, etc.
-  StrFmt $R0 "%04d-%02d-%02d %02d:%02d:%02d" $r1 $r2 $r3 $r4 $r5 $r6
-  FileOpen $0 "C:\core\logs\extIface_installer.log" a
-  FileWrite $0 "$R0 | ${TEXT}$\r$\n"
-  FileClose $0
+
+  ; $0=Year $1=Month $2=Day $3=Hour $4=Min $5=Sec $6=DOW
+  ${GetTime} "" "L" $0 $1 $2 $3 $4 $5 $6
+
+  ; zero-pad
+  IntFmt $0 "%04i" $0
+  IntFmt $1 "%02i" $1
+  IntFmt $2 "%02i" $2
+  IntFmt $3 "%02i" $3
+  IntFmt $4 "%02i" $4
+  IntFmt $5 "%02i" $5
+
+  StrCpy $R0 "$0-$1-$2 $3:$4:$5"
+
+  FileOpen  $9 "C:\core\logs\extIface_installer.log" a
+  FileWrite $9 "$R0 | ${TEXT}$\r$\n"
+  FileClose $9
 !macroend
 
 ; Ask for elevated privileges to write c:\core 

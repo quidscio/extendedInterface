@@ -8,9 +8,10 @@
 ;===== Enable a disk log =====
 !macro CoreLog TEXT
   CreateDirectory "C:\core\logs"
-  System::Call 'kernel32::GetLocalTime(*l .r1)'
-  ; r1 now points to SYSTEMTIME (year, month, etc.). Build a timestamp string.
-  StrCpy $R0 "$1-1 $1-2 $1-4 $1-5 $1-6"
+  System::Call 'kernel32::GetLocalTime(*i .r0)'   ; r0 points to SYSTEMTIME
+  System::Call "*$0(&i2 .r1, &i2 .r2, &i2, &i2, &i2 .r3, &i2 .r4, &i2, &i2)"
+  ; r1=year, r2=month, r3=day, r4=hour, etc.
+  StrFmt $R0 "%04d-%02d-%02d %02d:%02d:%02d" $r1 $r2 $r3 $r4 $r5 $r6
   FileOpen $0 "C:\core\logs\extIface_installer.log" a
   FileWrite $0 "$R0 | ${TEXT}$\r$\n"
   FileClose $0
@@ -66,6 +67,7 @@ Section "Install"
   ExecWait "cmd /c for /f $\"tokens=1,2$\" %i in ('tasklist') do (if /i %i EQU bash.exe fsutil file createnew $TEMP\extIface_bashExe.bzy 0)"
   IfFileExists $TEMP\extIface_bashExe.bzy 0 notRunningInstall
     ;we have atleast one main window active
+    !insertmacro CoreLog "Detected running bash.exe process. Please close bash.exe and retry."
     MessageBox MB_OK|MB_ICONEXCLAMATION "Please close  bash.exe  and retry." /SD IDOK
     Abort
   notRunningInstall:

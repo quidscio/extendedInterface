@@ -1,0 +1,151 @@
+name: build_new
+
+
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#permissions
+permissions:
+  actions: write
+  checks: read
+  contents: write
+  deployments: read
+  issues: none
+  packages: read
+  pull-requests: read
+  repository-projects: read
+  security-events: none
+  statuses: read
+
+
+on:
+  workflow_dispatch:
+    inputs:
+      #devfast:
+        #type: boolean
+ 
+
+      #runnerName:
+        #default: ubuntu-latest
+        #description: 'Runner name'
+        #required: false
+      #ubscpFromPublic:
+        #type: boolean
+        #default: false
+        #required: false
+      #ubscpPackage:
+        #required: false
+        #default: package_ubcp-core.7z
+        #description: 'UBCP package name'
+      #manualRelease:
+        #type: boolean
+        #default: false
+        #required: false
+      #releaseTag:
+        #required: false
+        #description: 'release tag'
+
+jobs:
+  #build_guard:
+    #runs-on: ubuntu-latest
+    #steps:
+      #- uses: actions/checkout@v3
+      #- uses: dev-drprasad/delete-tag-and-release@v1.0
+        #with:
+            #tag_name: build-${{ github.run_id }}-${{ github.run_attempt }}
+            #github_token: ${{ secrets.GITHUB_TOKEN }}
+            #delete_release: true #(optional) default: true 
+  build_nix:
+    #needs: [build_guard]
+    runs-on: ${{ github.event.inputs.runnerName == '' && 'ubuntu-22.04' || github.event.inputs.runnerName }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 1
+          submodules: 'recursive'
+      - name: 🔍 Tree snapshot - 01_checkout
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          mkdir -p tree_snapshots
+          label="01_checkout"
+          find . -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' \
+            > "tree_snapshots/${label}.log"
+          find . -printf '"%p",%TY-%Tm-%Td,%TH:%TM,%s\n' \
+            > "tree_snapshots/${label}.csv"
+      - name: _getMinimal_cloud
+        shell: bash
+        timeout-minutes: 120
+        run: |
+          ./ubiquitous_bash.sh _getMinimal_cloud
+      - name: 🔍 Tree snapshot - 02__getMinimal_cloud
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          mkdir -p tree_snapshots
+          label="02__getMinimal_cloud"
+          find . -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' \
+            > "tree_snapshots/${label}.log"
+          find . -printf '"%p",%TY-%Tm-%Td,%TH:%TM,%s\n' \
+            > "tree_snapshots/${label}.csv"
+      - name: _getMinimal-build_extendedInterface
+        shell: bash
+        timeout-minutes: 120
+        run: |
+          ./ubiquitous_bash.sh _getMinimal-build_extendedInterface
+      - name: 🔍 Tree snapshot - 03__getMinimal-build_extendedInterface
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          mkdir -p tree_snapshots
+          label="03__getMinimal-build_extendedInterface"
+          find . -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' \
+            > "tree_snapshots/${label}.log"
+          find . -printf '"%p",%TY-%Tm-%Td,%TH:%TM,%s\n' \
+            > "tree_snapshots/${label}.csv"
+      - name: build-fetch
+        shell: bash
+        timeout-minutes: 120
+        run: |
+          mkdir -p ../extendedInterface-accessories/integrations/ubcp
+          #curl -L -o ../extendedInterface-accessories/integrati...p-core.7z\") | .browser_download_url" | sort -n -r | head -n1)  
+          ./ubiquitous_bash.sh _build_extendedInterface-fetch
+      - name: 🔍 Tree snapshot - 04_build-fetch
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          mkdir -p tree_snapshots
+          label="04_build-fetch"
+          find . -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' \
+            > "tree_snapshots/${label}.log"
+          find . -printf '"%p",%TY-%Tm-%Td,%TH:%TM,%s\n' \
+            > "tree_snapshots/${label}.csv"
+      - name: build-build
+        shell: bash
+        timeout-minutes: 120
+        run: |
+          rm -f ../extendedInterface-accessories/integrations/ubcp/package_ubcp-core.7z
+          ./ubiquitous_bash.sh _build_extendedInterface-build
+      - name: 🔍 Tree snapshot - 05_build-build
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          mkdir -p tree_snapshots
+          label="05_build-build"
+          find . -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' \
+            > "tree_snapshots/${label}.log"
+          find . -printf '"%p",%TY-%Tm-%Td,%TH:%TM,%s\n' \
+            > "tree_snapshots/${label}.csv"
+      - name: 📤 Upload Build Diagnostics Artifacts
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: tree-snapshots-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            tree_snapshots/*.log
+            tree_snapshots/*.csv
+          retention-days: 14
+      - name: release!
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: build-${{ github.run_id }}-${{ github.run_attempt }}
+          name: build
+          files: |
+            ../extIface.exe

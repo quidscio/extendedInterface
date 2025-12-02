@@ -66,9 +66,9 @@ jobs:
         run: |
           mkdir -p tree_snapshots
           label="01_checkout"
-          find . -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' \
+          find .. -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' \
             > "tree_snapshots/${label}.log"
-          find . -printf '"%p",%TY-%Tm-%Td,%TH:%TM,%s\n' \
+          find .. -printf '"%p",%TY-%Tm-%Td,%TH:%TM,%s\n' \
             > "tree_snapshots/${label}.csv"
       - name: _getMinimal_cloud
         shell: bash
@@ -81,9 +81,9 @@ jobs:
         run: |
           mkdir -p tree_snapshots
           label="02__getMinimal_cloud"
-          find . -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' \
+          find .. -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' \
             > "tree_snapshots/${label}.log"
-          find . -printf '"%p",%TY-%Tm-%Td,%TH:%TM,%s\n' \
+          find .. -printf '"%p",%TY-%Tm-%Td,%TH:%TM,%s\n' \
             > "tree_snapshots/${label}.csv"
       - name: _getMinimal-build_extendedInterface
         shell: bash
@@ -96,9 +96,9 @@ jobs:
         run: |
           mkdir -p tree_snapshots
           label="03__getMinimal-build_extendedInterface"
-          find . -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' \
+          find .. -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' \
             > "tree_snapshots/${label}.log"
-          find . -printf '"%p",%TY-%Tm-%Td,%TH:%TM,%s\n' \
+          find .. -printf '"%p",%TY-%Tm-%Td,%TH:%TM,%s\n' \
             > "tree_snapshots/${label}.csv"
       - name: build-fetch
         shell: bash
@@ -113,9 +113,9 @@ jobs:
         run: |
           mkdir -p tree_snapshots
           label="04_build-fetch"
-          find . -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' \
+          find .. -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' \
             > "tree_snapshots/${label}.log"
-          find . -printf '"%p",%TY-%Tm-%Td,%TH:%TM,%s\n' \
+          find .. -printf '"%p",%TY-%Tm-%Td,%TH:%TM,%s\n' \
             > "tree_snapshots/${label}.csv"
       - name: build-build
         shell: bash
@@ -132,7 +132,7 @@ jobs:
           label="05_build-build"
 
           # Pretty tree view (same as before)
-          find . -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' \
+          find .. -print | sed -e 's;[^/]*/; |____;g;s;____|; |;g' \
             > "tree_snapshots/${label}.log"
 
           # CSV with path, date, time, size, sha256
@@ -140,7 +140,7 @@ jobs:
           {
             # optional header, comment out if you do not want it
             echo '"path","date","time","size","sha256"'
-            find . -type f -print0 | while IFS= read -r -d '' f; do
+            find .. -type f -print0 | while IFS= read -r -d '' f; do
               d=$(stat -c '%y' "$f" | cut -d' ' -f1)
               t=$(stat -c '%y' "$f" | cut -d' ' -f2 | cut -d'.' -f1)
               s=$(stat -c '%s' "$f")
